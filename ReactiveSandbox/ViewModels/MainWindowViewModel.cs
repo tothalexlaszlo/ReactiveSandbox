@@ -24,13 +24,10 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
 
     public MainWindowViewModel()
     {
-        var config = new MapperConfiguration(cfg => cfg.CreateMap<TrackDto, TrackViewModel>());
-        var mapper = config.CreateMapper();
-
         var tracksSourceListCleanup = _tracksCache
             .Connect()
             .AutoRefresh(track => track.Updates)
-            .ExpireAfter(track => GetExpiredTimeInterval(track))
+            .AutoRefresh(track => track.State)
             .Sort(SortExpressionComparer<TrackViewModel>.Ascending(track => track.Id))
             .ObserveOn(new DispatcherScheduler(Application.Current.Dispatcher))
             .Bind(out _tracks)
@@ -51,16 +48,14 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
                     var track = innerTracks.Lookup(trackDto.Id);
                     if (track.HasValue)
                     {
-                        track.Value.Time = trackDto.Time;
-                        track.Value.Updates++;
+                        track.Value.Update(trackDto);
 
                         //You may also need to do the following [if properties are used for filtering, sorts, grouping etc]
                         innerTracks.Refresh(track.Value);
                     }
                     else
                     {
-                        var newTrack = mapper.Map<TrackViewModel>(trackDto);
-                        innerTracks.AddOrUpdate(newTrack);
+                        innerTracks.AddOrUpdate(new TrackViewModel(trackDto));
                     }
                 }
             }));

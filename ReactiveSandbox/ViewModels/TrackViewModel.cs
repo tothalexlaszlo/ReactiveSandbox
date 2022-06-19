@@ -1,4 +1,8 @@
 using System;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Windows;
+using ReactiveSandbox.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -7,21 +11,57 @@ namespace ReactiveSandbox.ViewModels;
 internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDisposable
 {
     private bool _disposedValue;
+    private IDisposable _stateManagerCleanup = Disposable.Empty;
 
-    public int Id { get; init; }
-
-    [Reactive]
-    public DateTime Time { get; set; }
+    public int Id { get; }
 
     [Reactive]
-    public int Updates { get; set; }
+    public DateTime Time { get; private set; }
 
-    public TrackViewModel(int id)
+    [Reactive]
+    public State State { get; private set; }
+
+    [Reactive]
+    public int Updates { get; private set; }
+
+    public TrackViewModel(in TrackDto trackDto)
     {
-        Id = id;
+        Id = trackDto.Id;
+        Updates = -1;
+
+        Update(trackDto);
     }
 
-    public override string ToString() => $"Id: {Id} - Time: {Time} - Updates: {Updates}";
+    public void Update(in TrackDto trackDto)
+    {
+        _stateManagerCleanup.Dispose();
+        Time = trackDto.Time;
+        Updates++;
+
+        RefreshState();
+
+        if (State is State.Active)
+        {
+            _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(2)).Subscribe(_ => State = State.Inactive);
+        }
+        else if (State is State.Inactive)
+        {
+            _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(8)).Subscribe(_ => State = State.Expired);
+        }
+    }
+
+    private void RefreshState()
+    {
+        if (Time > DateTime.Now - TimeSpan.FromSeconds(2))
+        {
+            State = State.Active;
+            return;
+        }
+
+        State = Time <= DateTime.Now - TimeSpan.FromSeconds(10) ? State.Expired : State.Inactive;
+    }
+
+    public override string ToString() => $"Id: {Id} - Time: {Time} - Updates: {Updates} - State: {State}";
 
     #region IEquatable
     public override bool Equals(object? obj) => Equals(obj as TrackViewModel);
