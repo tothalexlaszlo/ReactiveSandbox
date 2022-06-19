@@ -50,7 +50,7 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
             && Time == other.Time;
     }
 
-    public override int GetHashCode() => HashCode.Combine(Id, Time);
+    public override int GetHashCode() => Id.GetHashCode();
 
     public static bool operator ==(TrackViewModel lhs, TrackViewModel rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
 
