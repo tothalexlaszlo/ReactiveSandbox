@@ -37,11 +37,16 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
         Time = trackDto.Time;
         Updates++;
 
+        // Myybe need some refactoring
         RefreshState();
-
         if (State is State.Active)
         {
-            _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(2)).Subscribe(_ => State = State.Inactive);
+            _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(2)).Subscribe(_ =>
+            {
+                State = State.Inactive;
+                _stateManagerCleanup.Dispose();
+                _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(8)).Subscribe(_ => State = State.Expired);
+            });
         }
         else if (State is State.Inactive)
         {

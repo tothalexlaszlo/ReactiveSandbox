@@ -24,19 +24,23 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
     {
         var tracksSourceListCleanup = _tracksCache
             .Connect()
-            .ForEachChange(changedTrack =>
-            {
-                if (changedTrack.Current.State is Models.State.Expired)
-                {
-                    _tracksCache.Remove(changedTrack.Current);
-                }
-            })
             .AutoRefresh()
             .Sort(SortExpressionComparer<TrackViewModel>.Ascending(track => track.Id))
             .ObserveOn(new DispatcherScheduler(Application.Current.Dispatcher))
             .Bind(out _tracks)
             .DisposeMany()
             .Subscribe((_) => Console.WriteLine(_tracksCache.Count));
+
+        _tracksCache
+            .Connect()
+            .WhenPropertyChanged(track => track.State)
+            .Subscribe(x =>
+            {
+                if (x.Value is Models.State.Expired)
+                {
+                    _tracksCache.RemoveKey(x.Sender.Id);
+                }
+            });
 
         var generator = new GeneratorService();
         var generatorCleanup = generator.Tracks
