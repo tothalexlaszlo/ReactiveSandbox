@@ -25,6 +25,8 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
 
     public TrackViewModel(in TrackDto trackDto)
     {
+        this.WhenAny(track => track.State, state => state.Value).Subscribe(_ => StartStateTimer());
+
         Id = trackDto.Id;
         Updates = -1;
 
@@ -33,25 +35,11 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
 
     public void Update(in TrackDto trackDto)
     {
-        _stateManagerCleanup.Dispose();
         Time = trackDto.Time;
         Updates++;
 
         // Maybe need some refactoring
         RefreshState();
-        if (State is State.Active)
-        {
-            _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(2)).Subscribe(_ =>
-            {
-                State = State.Inactive;
-                _stateManagerCleanup.Dispose();
-                _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(8)).Subscribe(_ => State = State.Expired);
-            });
-        }
-        else if (State is State.Inactive)
-        {
-            _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(8)).Subscribe(_ => State = State.Expired);
-        }
     }
 
     private void RefreshState()
@@ -63,6 +51,23 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
         }
 
         State = Time <= DateTime.Now - TimeSpan.FromSeconds(10) ? State.Expired : State.Inactive;
+    }
+
+    private void StartStateTimer()
+    {
+        _stateManagerCleanup.Dispose();
+        switch (State)
+        {
+            case State.Active:
+                _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(2)).Subscribe(_ => State = State.Inactive);
+                return;
+            case State.Inactive:
+                _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(8)).Subscribe(_ => State = State.Expired);
+                return;
+            case State.Expired:
+            default:
+                return;
+        }
     }
 
     public override string ToString() => $"Id: {Id} - Time: {Time} - Updates: {Updates} - State: {State}";
@@ -123,4 +128,3 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
     }
     #endregion
 }
-
