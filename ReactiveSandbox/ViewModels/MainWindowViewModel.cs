@@ -31,7 +31,7 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
             .DisposeMany()
             .Subscribe((_) => Console.WriteLine(_tracksCache.Count));
 
-        _tracksCache
+        var expiredManagerCleanup = _tracksCache
             .Connect()
             .WhenPropertyChanged(track => track.State)
             .Subscribe(x =>
@@ -68,7 +68,7 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
                 }
             }));
 
-        _cleanup = new CompositeDisposable(tracksSourceListCleanup, generatorCleanup);
+        _cleanup = new CompositeDisposable(tracksSourceListCleanup, expiredManagerCleanup, generatorCleanup);
     }
 
     private static DateTime GetFutureToleranceTime() => DateTime.Now + TimeSpan.FromSeconds(2);
