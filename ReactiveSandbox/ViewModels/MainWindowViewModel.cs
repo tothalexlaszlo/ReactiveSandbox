@@ -31,8 +31,7 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
                     _tracksCache.Remove(changedTrack.Current);
                 }
             })
-            .AutoRefresh(track => track.Updates)
-            .AutoRefresh(track => track.State)
+            .AutoRefresh()
             .Sort(SortExpressionComparer<TrackViewModel>.Ascending(track => track.Id))
             .ObserveOn(new DispatcherScheduler(Application.Current.Dispatcher))
             .Bind(out _tracks)
@@ -70,7 +69,6 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
 
     private static DateTime GetFutureToleranceTime() => DateTime.Now + TimeSpan.FromSeconds(2);
     private static DateTime GetExpiredToleranceTime() => DateTime.Now - TimeSpan.FromSeconds(10);
-    private static TimeSpan GetExpiredTimeInterval(TrackViewModel track) => track.Time - (DateTime.Now - TimeSpan.FromSeconds(10));
 
     #region IDispoable
     protected virtual void Dispose(bool disposing)
