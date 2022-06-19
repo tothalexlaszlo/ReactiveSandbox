@@ -37,7 +37,7 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
         Time = trackDto.Time;
         Updates++;
 
-        // Myybe need some refactoring
+        // Maybe need some refactoring
         RefreshState();
         if (State is State.Active)
         {
