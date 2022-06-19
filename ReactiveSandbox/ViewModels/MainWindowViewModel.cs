@@ -29,6 +29,7 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
 
         var tracksSourceListCleanup = _tracksCache
             .Connect()
+            .AutoRefresh(track => track.Updates)
             .ExpireAfter(track => GetExpiredTimeInterval(track))
             .Sort(SortExpressionComparer<TrackViewModel>.Ascending(track => track.Id))
             .ObserveOn(new DispatcherScheduler(Application.Current.Dispatcher))
