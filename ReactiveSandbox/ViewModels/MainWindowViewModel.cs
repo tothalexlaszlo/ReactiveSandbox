@@ -1,4 +1,3 @@
-using AutoMapper;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
@@ -8,7 +7,6 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
-using ReactiveSandbox.Models;
 using ReactiveSandbox.Services;
 
 namespace ReactiveSandbox.ViewModels;
