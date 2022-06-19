@@ -24,6 +24,13 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
     {
         var tracksSourceListCleanup = _tracksCache
             .Connect()
+            .ForEachChange(changedTrack =>
+            {
+                if (changedTrack.Current.State is Models.State.Expired)
+                {
+                    _tracksCache.Remove(changedTrack.Current);
+                }
+            })
             .AutoRefresh(track => track.Updates)
             .AutoRefresh(track => track.State)
             .Sort(SortExpressionComparer<TrackViewModel>.Ascending(track => track.Id))
@@ -49,7 +56,7 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
                         track.Value.Update(trackDto);
 
                         //You may also need to do the following [if properties are used for filtering, sorts, grouping etc]
-                        innerTracks.Refresh(track.Value);
+                        innerTracks.Refresh(track.Value.Id);
                     }
                     else
                     {
