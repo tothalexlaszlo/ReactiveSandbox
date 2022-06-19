@@ -1,7 +1,6 @@
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Windows;
 using ReactiveSandbox.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
