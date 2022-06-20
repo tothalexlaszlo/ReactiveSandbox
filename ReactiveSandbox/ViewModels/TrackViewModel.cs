@@ -31,7 +31,7 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
     {
         _cleanup = new CompositeDisposable
         (
-            this.WhenAny(track => track.State, state => state.Value).Subscribe(_ => StartStateTimer()),
+            this.WhenAnyValue(track => track.State).Subscribe(_ => StartStateTimer()),
             this.WhenAnyValue(track => track.State, track => track.Updates).Subscribe(_ => Text = ToString())
         );
 

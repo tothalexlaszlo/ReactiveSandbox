@@ -29,7 +29,7 @@ internal class MainWindowViewModel : ReactiveObject, IDisposable
             .ObserveOn(new DispatcherScheduler(Application.Current.Dispatcher))
             .Bind(out _tracks)
             .DisposeMany()
-            .Subscribe((_) => Console.WriteLine(_tracksCache.Count));
+            .Subscribe();
 
         var expiredManagerCleanup = _tracksCache
             .Connect()
