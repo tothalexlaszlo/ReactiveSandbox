@@ -11,6 +11,7 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
 {
     private bool _disposedValue;
     private IDisposable _stateManagerCleanup = Disposable.Empty;
+    private readonly IDisposable _statePropertyCleanup;
 
     public int Id { get; }
 
@@ -25,7 +26,7 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
 
     public TrackViewModel(in TrackDto trackDto)
     {
-        this.WhenAny(track => track.State, state => state.Value).Subscribe(_ => StartStateTimer());
+        _statePropertyCleanup = this.WhenAny(track => track.State, state => state.Value).Subscribe(_ => StartStateTimer());
 
         Id = trackDto.Id;
         Updates = -1;
@@ -113,6 +114,8 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
         {
             if (disposing)
             {
+                _stateManagerCleanup.Dispose();
+                _statePropertyCleanup.Dispose();
                 Console.WriteLine($"Track {Id} is disposed.");
             }
 
