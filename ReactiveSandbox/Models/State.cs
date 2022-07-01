@@ -1,6 +1,6 @@
 namespace ReactiveSandbox.Models;
 
-internal enum State
+public enum State
 {
     Active,
     Inactive,

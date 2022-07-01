@@ -1,17 +1,21 @@
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ReactiveSandbox.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 namespace ReactiveSandbox.ViewModels;
 
-internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDisposable
+public class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDisposable
 {
     private bool _disposedValue;
     private IDisposable _stateManagerCleanup = Disposable.Empty;
     private readonly IDisposable _cleanup;
+    private readonly IOptions<AppOption> _option;
+    private readonly ILogger<TrackViewModel> _logger;
 
     public int Id { get; }
 
@@ -27,8 +31,11 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
     [Reactive]
     public string Text { get; private set; } = string.Empty;
 
-    public TrackViewModel(in TrackDto trackDto)
+    public TrackViewModel(in TrackDto trackDto, IOptions<AppOption> option, ILogger<TrackViewModel> logger)
     {
+        _option = option ?? throw new ArgumentNullException(nameof(option));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
         _cleanup = new CompositeDisposable
         (
             this.WhenAnyValue(track => track.State).Subscribe(_ => StartStateTimer()),
@@ -52,13 +59,13 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
 
     private void RefreshState()
     {
-        if (Time > DateTime.Now - TimeSpan.FromSeconds(2))
+        if (Time > DateTime.Now - _option.Value.InactiveToleranceTime)
         {
             State = State.Active;
             return;
         }
 
-        State = Time <= DateTime.Now - TimeSpan.FromSeconds(10) ? State.Expired : State.Inactive;
+        State = Time <= DateTime.Now - _option.Value.ExpiredToleranceTime ? State.Expired : State.Inactive;
     }
 
     private void StartStateTimer()
@@ -67,10 +74,10 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
         switch (State)
         {
             case State.Active:
-                _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(2)).Subscribe(_ => State = State.Inactive);
+                _stateManagerCleanup = Observable.Timer(_option.Value.InactiveToleranceTime).Subscribe(_ => State = State.Inactive);
                 return;
             case State.Inactive:
-                _stateManagerCleanup = Observable.Timer(TimeSpan.FromSeconds(8)).Subscribe(_ => State = State.Expired);
+                _stateManagerCleanup = Observable.Timer(_option.Value.ExpiredToleranceTime - _option.Value.InactiveToleranceTime).Subscribe(_ => State = State.Expired);
                 return;
             case State.Expired:
             default:
@@ -123,7 +130,7 @@ internal class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDis
             {
                 _stateManagerCleanup.Dispose();
                 _cleanup.Dispose();
-                Console.WriteLine($"Track {Id} is disposed.");
+                _logger.LogInformation("Track {Id} is disposed.", Id);
             }
 
             _disposedValue = true;
