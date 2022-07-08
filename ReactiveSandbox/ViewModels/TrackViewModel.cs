@@ -39,10 +39,13 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
         _cleanup = new CompositeDisposable
         (
             this.WhenAnyValue(track => track.State).Subscribe(_ => UpdateStateTimer()),
-            this.WhenAnyValue(track => track.State, track => track.Updates).Subscribe(_ => Text = ToString())
+            this.WhenAnyValue(track => track.State, track => track.Updates)
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Subscribe(_ => Text = ToString())
         );
 
         Id = trackDto.Id;
+        State = State.Active;
         Updates = -1;
 
         Update(trackDto);
@@ -122,7 +125,7 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
             && Time == other.Time;
     }
 
-    public override int GetHashCode() => Id;
+    public override int GetHashCode() => HashCode.Combine(Id, Time);
 
     public static bool operator ==(TrackViewModel lhs, TrackViewModel rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
 
