@@ -13,14 +13,18 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
 {
     private bool _disposedValue;
     private IDisposable _stateManagerCleanup = Disposable.Empty;
+    private DateTime _time;
     private readonly IDisposable _cleanup;
     private readonly IOptions<AppOption> _option;
     private readonly ILogger<TrackViewModel> _logger;
 
     public int Id { get; }
 
-    [Reactive]
-    public DateTime Time { get; private set; }
+    public DateTime Time
+    {
+        get => _time;
+        private set => this.RaiseAndSetIfChanged(ref _time, value);
+    }
 
     [Reactive]
     public State State { get; private set; }
@@ -28,24 +32,25 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
     [Reactive]
     public int Updates { get; private set; }
 
-    [Reactive]
-    public string Text { get; private set; } = string.Empty;
+    private readonly ObservableAsPropertyHelper<string> _text;
+    public string Text => _text.Value;
 
     public TrackViewModel(in TrackDto trackDto, IOptions<AppOption> option, ILogger<TrackViewModel> logger)
     {
         _option = option ?? throw new ArgumentNullException(nameof(option));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+        _text = this.WhenAnyValue(track => track.State, track => track.Updates)
+            .Throttle(TimeSpan.FromMilliseconds(100))
+            .Select(_ => ToString())
+            .ToProperty(this, nameof(Text));
+
         _cleanup = new CompositeDisposable
         (
-            this.WhenAnyValue(track => track.State).Subscribe(_ => UpdateStateTimer()),
-            this.WhenAnyValue(track => track.State, track => track.Updates)
-                .Throttle(TimeSpan.FromMilliseconds(100))
-                .Subscribe(_ => Text = ToString())
+            this.WhenAnyValue(track => track.State).Subscribe(_ => UpdateStateTimer())
         );
 
         Id = trackDto.Id;
-        State = State.Active;
         Updates = -1;
 
         Update(trackDto);
