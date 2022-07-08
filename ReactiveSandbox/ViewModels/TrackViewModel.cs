@@ -41,7 +41,7 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _text = this.WhenAnyValue(track => track.State, track => track.Updates)
-            .Throttle(TimeSpan.FromMilliseconds(100))
+            .Throttle(TimeSpan.FromMilliseconds(200))
             .Select(_ => ToString())
             .ToProperty(this, nameof(Text));
 
