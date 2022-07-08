@@ -38,7 +38,7 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
 
         _cleanup = new CompositeDisposable
         (
-            this.WhenAnyValue(track => track.State).Subscribe(_ => StartStateTimer()),
+            this.WhenAnyValue(track => track.State).Subscribe(_ => UpdateStateTimer()),
             this.WhenAnyValue(track => track.State, track => track.Updates).Subscribe(_ => Text = ToString())
         );
 
@@ -49,7 +49,7 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
     }
 
     #region Logging source generation
-    [LoggerMessage(0, LogLevel.Information, "Track {Id} is disposed.")]
+    [LoggerMessage(0, LogLevel.Information, "Track {Id} has been disposed.")]
     partial void LogDisposed(int id);
     #endregion
 
@@ -59,23 +59,15 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
         Updates++;
 
         // Maybe need some refactoring
-        RefreshState();
+        UpdateStateTimer();
     }
 
-    private void RefreshState()
-    {
-        if (Time > DateTime.Now - _option.Value.InactiveToleranceTime)
-        {
-            State = State.Active;
-            return;
-        }
-
-        State = Time <= DateTime.Now - _option.Value.ExpiredToleranceTime ? State.Expired : State.Inactive;
-    }
-
-    private void StartStateTimer()
+    private void UpdateStateTimer()
     {
         _stateManagerCleanup.Dispose();
+
+        RefreshState();
+
         switch (State)
         {
             case State.Active:
@@ -88,6 +80,17 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
             default:
                 return;
         }
+    }
+
+    private void RefreshState()
+    {
+        if (Time > DateTime.Now - _option.Value.InactiveToleranceTime)
+        {
+            State = State.Active;
+            return;
+        }
+
+        State = Time <= DateTime.Now - _option.Value.ExpiredToleranceTime ? State.Expired : State.Inactive;
     }
 
     public override string ToString() => $"Id: {Id} - Time: {Time} - Updates: {Updates} - State: {State}";
