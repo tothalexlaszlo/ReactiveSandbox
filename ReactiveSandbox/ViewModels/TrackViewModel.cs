@@ -9,7 +9,7 @@ using ReactiveUI.Fody.Helpers;
 
 namespace ReactiveSandbox.ViewModels;
 
-public class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDisposable
+public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDisposable
 {
     private bool _disposedValue;
     private IDisposable _stateManagerCleanup = Disposable.Empty;
@@ -47,6 +47,11 @@ public class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDispo
 
         Update(trackDto);
     }
+
+    #region Logging source generation
+    [LoggerMessage(0, LogLevel.Information, "Track {Id} is disposed.")]
+    partial void LogDisposed(int id);
+    #endregion
 
     public void Update(in TrackDto trackDto)
     {
@@ -114,7 +119,7 @@ public class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDispo
             && Time == other.Time;
     }
 
-    public override int GetHashCode() => Id.GetHashCode();
+    public override int GetHashCode() => Id;
 
     public static bool operator ==(TrackViewModel lhs, TrackViewModel rhs) => lhs is null ? rhs is null : lhs.Equals(rhs);
 
@@ -130,7 +135,8 @@ public class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDispo
             {
                 _stateManagerCleanup.Dispose();
                 _cleanup.Dispose();
-                _logger.LogInformation("Track {Id} is disposed.", Id);
+
+                LogDisposed(Id);
             }
 
             _disposedValue = true;
