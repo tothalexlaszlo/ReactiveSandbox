@@ -9,8 +9,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-    <PackageReference Include="ReactiveUI.Fody" Version="18.2.5" />
-    <PackageReference Include="ReactiveUI.WPF" Version="18.2.5" />
+    <PackageReference Include="ReactiveUI.Fody" Version="18.2.9" />
+    <PackageReference Include="ReactiveUI.Validation" Version="3.0.1" />
+    <PackageReference Include="ReactiveUI.WPF" Version="18.2.9" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 

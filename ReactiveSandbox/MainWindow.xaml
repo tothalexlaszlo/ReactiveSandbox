@@ -6,8 +6,15 @@
         xmlns:local="clr-namespace:ReactiveSandbox"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid Margin="10">
-        <ListBox ItemsSource="{Binding InboundTracks}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding InboundTracks}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="0,2">
