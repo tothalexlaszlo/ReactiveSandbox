@@ -20,9 +20,10 @@ public partial class App : Application
         .ConfigureServices((hostBuilderContext, services) =>
         {
             _ = services.AddSingleton<MainWindowViewModel>()
-            .AddTransient<MainWindow>()
-            .AddSingleton<GeneratorService>()
-            .Configure<AppOption>(hostBuilderContext.Configuration.GetSection(nameof(AppOption)));
+                .AddTransient<MainWindow>()
+                .AddSingleton<GeneratorService>()
+                .AddTransient<TrackService>()
+                .Configure<AppOption>(hostBuilderContext.Configuration.GetSection(nameof(AppOption)));
         })
         .Build();
     }
