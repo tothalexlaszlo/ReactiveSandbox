@@ -46,7 +46,7 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
             .DisposeWith(_cleanup);
 
         _text = this.WhenAnyValue(track => track.State, track => track.Updates)
-            .Throttle(TimeSpan.FromMilliseconds(200))
+            .Throttle(TimeSpan.FromMilliseconds(100))
             .Select(_ => ToString())
             .ToProperty(this, nameof(Text))
             .DisposeWith(_cleanup);

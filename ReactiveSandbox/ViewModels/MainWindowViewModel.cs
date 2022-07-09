@@ -22,9 +22,9 @@ public class MainWindowViewModel : ReactiveObject, IDisposable
             .Connect()
             .AutoRefresh(track => track.Text)
             .Sort(SortExpressionComparer<TrackViewModel>.Ascending(track => track.Id))
-            .DisposeMany()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Bind(out _tracks)
+            .DisposeMany()
             .Subscribe();
     }
 
