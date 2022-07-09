@@ -22,9 +22,8 @@ public class TrackService : IDisposable
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
 
-        _cleanup = new CompositeDisposable
-        (
-            generatorService.Tracks.Subscribe(trackDtos => _tracks.Edit(innerTracks =>
+        // Add or Update Tracks
+        _ = generatorService.Tracks.Subscribe(trackDtos => _tracks.Edit(innerTracks =>
             {
                 foreach (var trackDto in trackDtos)
                 {
@@ -46,19 +45,21 @@ public class TrackService : IDisposable
                         innerTracks.AddOrUpdate(new TrackViewModel(trackDto, options, loggerFactory.CreateLogger<TrackViewModel>()));
                     }
                 }
-            })),
+            }))
+            .DisposeWith(_cleanup);
 
-            _tracks.Connect()
-                .ObserveOn(RxApp.TaskpoolScheduler)
-                .WhenPropertyChanged(track => track.State)
-                .Subscribe(track =>
+        // Remove Tracks
+        _ = _tracks.Connect()
+            .ObserveOn(RxApp.TaskpoolScheduler)
+            .WhenPropertyChanged(track => track.State)
+            .Subscribe(track =>
+            {
+                if (track.Value == State.Expired)
                 {
-                    if (track.Value == State.Expired)
-                    {
-                        _tracks.RemoveKey(track.Sender.Id);
-                    }
-                })
-        );
+                    _tracks.RemoveKey(track.Sender.Id);
+                }
+            })
+            .DisposeWith(_cleanup);
     }
 
     public IObservable<IChangeSet<TrackViewModel, int>> Connect() => _tracks.Connect();
