@@ -11,12 +11,14 @@ namespace ReactiveSandbox.ViewModels;
 
 public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDisposable
 {
+    private readonly IOptions<AppOption> _option;
+    private readonly ILogger<TrackViewModel> _logger;
+    private readonly CompositeDisposable _cleanup = new();
+
     private bool _disposedValue;
     private IDisposable _stateManagerCleanup = Disposable.Empty;
     private DateTime _time;
-    private readonly IDisposable _cleanup;
-    private readonly IOptions<AppOption> _option;
-    private readonly ILogger<TrackViewModel> _logger;
+    private readonly ObservableAsPropertyHelper<string> _text;
 
     public int Id { get; }
 
@@ -32,7 +34,6 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
     [Reactive]
     public int Updates { get; private set; }
 
-    private readonly ObservableAsPropertyHelper<string> _text;
     public string Text => _text.Value;
 
     public TrackViewModel(in TrackDto trackDto, IOptions<AppOption> option, ILogger<TrackViewModel> logger)
@@ -40,15 +41,15 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
         _option = option ?? throw new ArgumentNullException(nameof(option));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        _cleanup = new CompositeDisposable
-        (
-            this.WhenAnyValue(track => track.State).Subscribe(_ => UpdateStateTimer())
-        );
+        _ = this.WhenAnyValue(track => track.State)
+            .Subscribe(_ => UpdateStateTimer())
+            .DisposeWith(_cleanup);
 
         _text = this.WhenAnyValue(track => track.State, track => track.Updates)
             .Throttle(TimeSpan.FromMilliseconds(200))
             .Select(_ => ToString())
-            .ToProperty(this, nameof(Text));
+            .ToProperty(this, nameof(Text))
+            .DisposeWith(_cleanup);
 
         Id = trackDto.Id;
         Updates = -1;

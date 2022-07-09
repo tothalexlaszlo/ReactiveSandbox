@@ -1,4 +1,5 @@
 using DynamicData;
+using DynamicData.Kernel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ReactiveSandbox.Models;
@@ -13,21 +14,21 @@ namespace ReactiveSandbox.Services;
 public class TrackService : IDisposable
 {
     private readonly SourceCache<TrackViewModel, int> _tracks = new(track => track.Id);
-    private readonly CompositeDisposable _cleanup;
+    private readonly CompositeDisposable _cleanup = new();
+    private readonly IOptions<AppOption> _options;
     private bool _disposedValue;
 
     public TrackService(GeneratorService generatorService, IOptions<AppOption> options, ILoggerFactory loggerFactory)
     {
+        _options = options ?? throw new ArgumentNullException(nameof(options));
+
         _cleanup = new CompositeDisposable
         (
             generatorService.Tracks.Subscribe(trackDtos => _tracks.Edit(innerTracks =>
             {
-                var futureTimeTolerance = DateTime.Now + options.Value.FutureToleranceTime;
-                var expiredToleranceTime = DateTime.Now - options.Value.ExpiredToleranceTime;
-
                 foreach (var trackDto in trackDtos)
                 {
-                    if (trackDto.Time >= futureTimeTolerance || trackDto.Time <= expiredToleranceTime)
+                    if (!IsTrackValid(trackDto))
                     {
                         continue;
                     }
@@ -61,6 +62,14 @@ public class TrackService : IDisposable
     }
 
     public IObservable<IChangeSet<TrackViewModel, int>> Connect() => _tracks.Connect();
+
+    private bool IsTrackValid(in TrackDto track)
+{
+        var futureTimeTolerance = DateTime.Now + _options.Value.FutureToleranceTime;
+        var expiredToleranceTime = DateTime.Now - _options.Value.ExpiredToleranceTime;
+
+        return track.Time < futureTimeTolerance && track.Time > expiredToleranceTime;
+    }
 
     #region IDisposable
     protected virtual void Dispose(bool disposing)
