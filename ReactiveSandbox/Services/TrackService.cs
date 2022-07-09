@@ -3,8 +3,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ReactiveSandbox.Models;
 using ReactiveSandbox.ViewModels;
+using ReactiveUI;
 using System;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 
 namespace ReactiveSandbox.Services;
 
@@ -46,6 +48,7 @@ public class TrackService : IDisposable
             })),
 
             _tracks.Connect()
+                .ObserveOn(RxApp.TaskpoolScheduler)
                 .WhenPropertyChanged(track => track.State)
                 .Subscribe(track =>
                 {
