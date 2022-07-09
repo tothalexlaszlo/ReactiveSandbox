@@ -18,36 +18,34 @@ public class TrackService : IDisposable
     {
         _cleanup = new CompositeDisposable
         (
-            generatorService.Tracks
-                .Subscribe(trackDtos => _tracks.Edit(innerTracks =>
+            generatorService.Tracks.Subscribe(trackDtos => _tracks.Edit(innerTracks =>
+            {
+                var futureTimeTolerance = DateTime.Now + options.Value.FutureToleranceTime;
+                var expiredToleranceTime = DateTime.Now - options.Value.ExpiredToleranceTime;
+
+                foreach (var trackDto in trackDtos)
                 {
-                    var futureTimeTolerance = DateTime.Now + options.Value.FutureToleranceTime;
-                    var expiredToleranceTime = DateTime.Now - options.Value.ExpiredToleranceTime;
-
-                    foreach (var trackDto in trackDtos)
+                    if (trackDto.Time >= futureTimeTolerance || trackDto.Time <= expiredToleranceTime)
                     {
-                        if (trackDto.Time >= futureTimeTolerance || trackDto.Time <= expiredToleranceTime)
-                        {
-                            continue;
-                        }
-
-                        var track = innerTracks.Lookup(trackDto.Id);
-                        if (track.HasValue)
-                        {
-                            track.Value.Update(trackDto);
-
-                            //You may also need to do the following [if properties are used for filtering, sorts, grouping etc]
-                            innerTracks.Refresh(track.Value.Id);
-                        }
-                        else
-                        {
-                            innerTracks.AddOrUpdate(new TrackViewModel(trackDto, options, loggerFactory.CreateLogger<TrackViewModel>()));
-                        }
+                        continue;
                     }
-                })),
 
-            _tracks
-                .Connect()
+                    var track = innerTracks.Lookup(trackDto.Id);
+                    if (track.HasValue)
+                    {
+                        track.Value.Update(trackDto);
+
+                        //You may also need to do the following [if properties are used for filtering, sorts, grouping etc]
+                        innerTracks.Refresh(track.Value.Id);
+                    }
+                    else
+                    {
+                        innerTracks.AddOrUpdate(new TrackViewModel(trackDto, options, loggerFactory.CreateLogger<TrackViewModel>()));
+                    }
+                }
+            })),
+
+            _tracks.Connect()
                 .WhenPropertyChanged(track => track.State)
                 .Subscribe(track =>
                 {
