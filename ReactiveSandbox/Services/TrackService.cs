@@ -1,5 +1,4 @@
 using DynamicData;
-using DynamicData.Kernel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ReactiveSandbox.Models;
@@ -13,16 +12,16 @@ namespace ReactiveSandbox.Services;
 
 public class TrackService : IDisposable
 {
+    private readonly IOptions<AppOption> _options;
     private readonly SourceCache<TrackViewModel, int> _tracks = new(track => track.Id);
     private readonly CompositeDisposable _cleanup = new();
-    private readonly IOptions<AppOption> _options;
     private bool _disposedValue;
 
     public TrackService(GeneratorService generatorService, IOptions<AppOption> options, ILoggerFactory loggerFactory)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
 
-        // Add or Update Tracks
+        // Add or update tracks
         _ = generatorService.Tracks.Subscribe(trackDtos => _tracks.Edit(innerTracks =>
             {
                 foreach (var trackDto in trackDtos)
@@ -48,7 +47,7 @@ public class TrackService : IDisposable
             }))
             .DisposeWith(_cleanup);
 
-        // Remove Tracks
+        // Remove expired tracks
         _ = _tracks.Connect()
             .ObserveOn(RxApp.TaskpoolScheduler)
             .WhenPropertyChanged(track => track.State)
@@ -63,6 +62,13 @@ public class TrackService : IDisposable
     }
 
     public IObservable<IChangeSet<TrackViewModel, int>> Connect() => _tracks.Connect();
+
+    public int ClearTracks()
+    {
+        var count = _tracks.Count;
+        _tracks.Clear();
+        return count;
+    }
 
     private bool IsTrackValid(in TrackDto track)
 {

@@ -33,7 +33,7 @@ public class GeneratorService
             new TrackDto(id: _random.Next(3, 23), time: DateTime.Now),          // Randomly expired
             new TrackDto(id: _random.Next(3, 23), time: DateTime.Now),          // Randomly expired
             new TrackDto(id: _random.Next(3, 23), time: DateTime.Now),          // Randomly expired
-            new TrackDto(id: _random.Next(3, 23), time: DateTime.Now),           // Randomly expired
+            new TrackDto(id: _random.Next(3, 23), time: DateTime.Now)           // Randomly expired
         };
 
         if (_counter == _alwaysExpireCounterThreshold)

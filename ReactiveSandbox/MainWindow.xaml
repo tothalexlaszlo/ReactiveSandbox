@@ -9,17 +9,19 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
+        <Button Command="{Binding CleanCommand}">Clear Tracks</Button>
         <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding InboundTracks}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="0,2">
+                    <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding Text}" />
                     </Grid>
