@@ -39,8 +39,7 @@ public class MainWindowViewModel : ReactiveObject, IDisposable
         _ = CleanCommand.Subscribe(count => Console.WriteLine($"Clean command: {count} items has been removed.")).DisposeWith(_cleanup);
 
         BuggyCommand = ReactiveCommand.CreateFromObservable(() => Observable.StartAsync(cancellationToken => WaitAndThrowException(cancellationToken))
-                    .TakeUntil(CancelBuggyExecutionCommand));
-
+            .TakeUntil(CancelBuggyExecutionCommand));
         _ = BuggyCommand.ThrownExceptions.Subscribe(exception => Console.WriteLine(exception)).DisposeWith(_cleanup);
 
         CancelBuggyExecutionCommand = ReactiveCommand.Create(() => { }, BuggyCommand.IsExecuting);
