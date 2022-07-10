@@ -14,11 +14,11 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
     private readonly IOptions<AppOption> _option;
     private readonly ILogger<TrackViewModel> _logger;
     private readonly CompositeDisposable _cleanup = new();
+    private readonly ObservableAsPropertyHelper<string> _text;
 
     private bool _disposedValue;
     private IDisposable _stateManagerCleanup = Disposable.Empty;
     private DateTime _time;
-    private readonly ObservableAsPropertyHelper<string> _text;
 
     public int Id { get; }
 

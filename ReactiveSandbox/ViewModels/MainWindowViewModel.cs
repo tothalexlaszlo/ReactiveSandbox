@@ -15,11 +15,10 @@ namespace ReactiveSandbox.ViewModels;
 public class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private readonly CompositeDisposable _cleanup = new();
-    private bool _disposedValue;
-
     private readonly ReadOnlyObservableCollection<TrackViewModel> _tracks;
-    public ReadOnlyObservableCollection<TrackViewModel> InboundTracks => _tracks;
-
+    private bool _disposedValue;
+        
+    public ReadOnlyObservableCollection<TrackViewModel> InboundTracks => _tracks;    
     public ReactiveCommand<Unit, int> CleanCommand { get; }
     public ReactiveCommand<Unit, Unit> BuggyCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelBuggyExecutionCommand { get; }
