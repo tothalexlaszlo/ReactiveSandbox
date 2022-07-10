@@ -8,20 +8,24 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Button Command="{Binding CleanCommand}">Clear Tracks</Button>
+        <StackPanel Orientation="Horizontal">
+            <Button Command="{Binding CleanCommand}">Clear Tracks</Button>
+            <Button Command="{Binding BuggyCommand}">Throw exception</Button>
+            <Button Command="{Binding CancelBuggyExecutionCommand}">Cancel</Button>
+        </StackPanel>
         <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding InboundTracks}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding Text}" />
                     </Grid>

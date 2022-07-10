@@ -7,18 +7,22 @@ using System.Reactive.Linq;
 using ReactiveSandbox.Services;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace ReactiveSandbox.ViewModels;
 
 public class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private readonly CompositeDisposable _cleanup = new();
-    private readonly ReadOnlyObservableCollection<TrackViewModel> _tracks;
     private bool _disposedValue;
 
+    private readonly ReadOnlyObservableCollection<TrackViewModel> _tracks;
     public ReadOnlyObservableCollection<TrackViewModel> InboundTracks => _tracks;
 
     public ReactiveCommand<Unit, int> CleanCommand { get; }
+    public ReactiveCommand<Unit, Unit> BuggyCommand { get; }
+    public ReactiveCommand<Unit, Unit> CancelBuggyExecutionCommand { get; }
 
     public MainWindowViewModel(TrackService trackService)
     {
@@ -32,8 +36,25 @@ public class MainWindowViewModel : ReactiveObject, IDisposable
             .DisposeWith(_cleanup);
 
         CleanCommand = ReactiveCommand.Create(() => trackService.ClearTracks());
-        _ = CleanCommand.Subscribe(observer => Console.WriteLine($"Clean command: {observer} item has been removed."))
-            .DisposeWith(_cleanup);
+        _ = CleanCommand.Subscribe(count => Console.WriteLine($"Clean command: {count} items has been removed.")).DisposeWith(_cleanup);
+
+        BuggyCommand = ReactiveCommand.CreateFromObservable(() => Observable.StartAsync(cancellationToken => WaitAndThrowException(cancellationToken))
+                    .TakeUntil(CancelBuggyExecutionCommand));
+
+        _ = BuggyCommand.ThrownExceptions.Subscribe(exception => Console.WriteLine(exception)).DisposeWith(_cleanup);
+
+        CancelBuggyExecutionCommand = ReactiveCommand.Create(() => { }, BuggyCommand.IsExecuting);
+    }
+
+    private static async Task WaitAndThrowException(CancellationToken cancellationToken)
+{
+        await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+
+        throw new Exception();
     }
 
     #region IDispoable
