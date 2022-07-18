@@ -58,8 +58,8 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
     }
 
     #region Logging source generation
-    //[LoggerMessage(0, LogLevel.Information, "Track {Id} has been disposed.")]
-    //partial void LogDisposed(int id);
+    [LoggerMessage(0, LogLevel.Information, "Track {Id} has been disposed.")]
+    partial void LogDisposed(int id);
     #endregion
 
     public void Update(in TrackDto trackDto)
