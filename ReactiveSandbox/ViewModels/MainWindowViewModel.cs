@@ -20,7 +20,9 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
 {
     private readonly CompositeDisposable _cleanup = new();
     private readonly ReadOnlyObservableCollection<TrackViewModel> _tracks;
+    private readonly Regex _emailRegex = new("^((\"[\\w-\\s]+\")|([\\w-]+(?:\\.[\\w-]+)*)|(\"[\\w-\\s]+\")([\\w-]+(?:\\.[\\w-]+)*))(@((?:[\\w-]+\\.)*\\w[\\w-]{0,66})\\.([a-z]{2,6}(?:\\.[a-z]{2})?)$)|(@\\[?((25[0-5]\\.|2[0-4][0-9]\\.|1[0-9]{2}\\.|[0-9]{1,2}\\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\\]?$)", RegexOptions.Compiled);
     private bool _disposedValue;
+
 
     [Reactive]
     public string Email { get; set; } = string.Empty;
@@ -42,9 +44,9 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
             .Subscribe()
             .DisposeWith(_cleanup);
 
-        var a = this.ValidationRule(
+        _ = this.ValidationRule(
             viewModel => viewModel.Email,
-            email => Regex.IsMatch(email, "^((\"[\\w-\\s]+\")|([\\w-]+(?:\\.[\\w-]+)*)|(\"[\\w-\\s]+\")([\\w-]+(?:\\.[\\w-]+)*))(@((?:[\\w-]+\\.)*\\w[\\w-]{0,66})\\.([a-z]{2,6}(?:\\.[a-z]{2})?)$)|(@\\[?((25[0-5]\\.|2[0-4][0-9]\\.|1[0-9]{2}\\.|[0-9]{1,2}\\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\\]?$)"),
+            email => _emailRegex.IsMatch(email),
             "Email is not in valid.");
 
         CleanCommand = ReactiveCommand.Create(() => trackService.ClearTracks());
