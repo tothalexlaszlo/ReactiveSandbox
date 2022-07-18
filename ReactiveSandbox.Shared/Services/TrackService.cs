@@ -1,14 +1,14 @@
 using DynamicData;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ReactiveSandbox.Models;
-using ReactiveSandbox.ViewModels;
+using ReactiveSandbox.Shared.Models;
+using ReactiveSandbox.Shared.ViewModels;
 using ReactiveUI;
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 
-namespace ReactiveSandbox.Services;
+namespace ReactiveSandbox.Shared.Services;
 
 public class TrackService : IDisposable
 {
@@ -71,7 +71,7 @@ public class TrackService : IDisposable
     }
 
     private bool IsTrackValid(in TrackDto track)
-{
+    {
         var futureTimeTolerance = DateTime.Now + _options.Value.FutureToleranceTime;
         var expiredToleranceTime = DateTime.Now - _options.Value.ExpiredToleranceTime;
 

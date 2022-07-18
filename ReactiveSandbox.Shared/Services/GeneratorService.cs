@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Options;
-using ReactiveSandbox.Models;
+using ReactiveSandbox.Shared.Models;
 using ReactiveUI;
 
-namespace ReactiveSandbox.Services;
+namespace ReactiveSandbox.Shared.Services;
 
 public class GeneratorService
 {
@@ -23,8 +23,8 @@ public class GeneratorService
     }
 
     private IList<TrackDto> GenerateTracks()
-    {        
-        var list =  new List<TrackDto>()
+    {
+        var list = new List<TrackDto>()
         {
             new TrackDto(id: 0, time: DateTime.Now - TimeSpan.FromSeconds(20)), // Always filtered
             new TrackDto(id: 1, time: DateTime.Now + TimeSpan.FromSeconds(20)), // Always filtered

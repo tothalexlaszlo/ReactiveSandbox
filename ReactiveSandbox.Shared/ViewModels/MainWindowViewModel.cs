@@ -4,7 +4,6 @@ using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
-using ReactiveSandbox.Services;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
@@ -13,8 +12,9 @@ using ReactiveUI.Validation.Helpers;
 using ReactiveUI.Fody.Helpers;
 using ReactiveUI.Validation.Extensions;
 using System.Text.RegularExpressions;
+using ReactiveSandbox.Shared.Services;
 
-namespace ReactiveSandbox.ViewModels;
+namespace ReactiveSandbox.Shared.ViewModels;
 
 public class MainWindowViewModel : ReactiveValidationObject, IDisposable
 {
@@ -26,7 +26,7 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
     [Reactive]
     public string Email { get; set; } = string.Empty;
 
-    public ReadOnlyObservableCollection<TrackViewModel> InboundTracks => _tracks;    
+    public ReadOnlyObservableCollection<TrackViewModel> InboundTracks => _tracks;
     public ReactiveCommand<Unit, int> CleanCommand { get; }
     public ReactiveCommand<Unit, Unit> BuggyCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelBuggyExecutionCommand { get; }
@@ -61,7 +61,7 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
     }
 
     private static async Task WaitAndThrowException(CancellationToken cancellationToken)
-{
+    {
         await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
         if (cancellationToken.IsCancellationRequested)
         {

@@ -1,13 +1,12 @@
-using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ReactiveSandbox.Models;
+using ReactiveSandbox.Shared.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace ReactiveSandbox.ViewModels;
+namespace ReactiveSandbox.Shared.ViewModels;
 
 public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDisposable
 {
@@ -58,8 +57,8 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
     }
 
     #region Logging source generation
-    //[LoggerMessage(0, LogLevel.Information, "Track {Id} has been disposed.")]
-    //partial void LogDisposed(int id);
+    [LoggerMessage(0, LogLevel.Information, "Track {Id} has been disposed.")]
+    partial void LogDisposed(int id);
     #endregion
 
     public void Update(in TrackDto trackDto)
