@@ -1,0 +1,34 @@
+@page "/"
+@using ReactiveSandbox.Shared.ViewModels
+@using ReactiveUI.Blazor
+@inherits ReactiveInjectableComponentBase<MainWindowViewModel>
+
+<PageTitle>Index</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4 mud-height-full">
+            @foreach (var track in ViewModel!.InboundTracks)
+            {
+                <MudText Typo="Typo.body1" GutterBottom="true">@track</MudText>
+            }
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="5">
+        <EditForm Model="@ViewModel" OnInvalidSubmit="SubmitAsync">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField @bind-Value="@ViewModel!.Email" Label="Outlined" Error=@(!ViewModel!.EmailValidation.IsValid) Variant="Variant.Outlined" ErrorText="@(ViewModel!.EmailValidation.Message.ToSingleLine())"></MudTextField>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant=Variant.Filled Color=Color.Primary Disabled=@(!ViewModel.CanSubmit)>Submit</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+    </MudItem>
+</MudGrid>
+
+
+
+
+

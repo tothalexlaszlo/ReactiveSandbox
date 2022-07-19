@@ -6,8 +6,6 @@ using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
-using System.Threading.Tasks;
-using System.Threading;
 using ReactiveUI.Validation.Helpers;
 using ReactiveUI.Fody.Helpers;
 using ReactiveUI.Validation.Extensions;
@@ -22,15 +20,19 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
     private readonly ReadOnlyObservableCollection<TrackViewModel> _tracks;
     private readonly Regex _emailRegex = new("^((\"[\\w-\\s]+\")|([\\w-]+(?:\\.[\\w-]+)*)|(\"[\\w-\\s]+\")([\\w-]+(?:\\.[\\w-]+)*))(@((?:[\\w-]+\\.)*\\w[\\w-]{0,66})\\.([a-z]{2,6}(?:\\.[a-z]{2})?)$)|(@\\[?((25[0-5]\\.|2[0-4][0-9]\\.|1[0-9]{2}\\.|[0-9]{1,2}\\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\\]?$)", RegexOptions.Compiled);
     private bool _disposedValue;
+    private readonly ObservableAsPropertyHelper<bool> _canSubmit;
+    public bool CanSubmit => _canSubmit.Value;
 
     [Reactive]
     public string Email { get; set; } = string.Empty;
 
     public ReadOnlyObservableCollection<TrackViewModel> InboundTracks => _tracks;
+
     public ReactiveCommand<Unit, int> CleanCommand { get; }
     public ReactiveCommand<Unit, Unit> BuggyCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelBuggyExecutionCommand { get; }
     public ReactiveCommand<Unit, Unit> SubmitCommand { get; }
+    public ValidationHelper EmailValidation { get; }
 
     public MainWindowViewModel(TrackService trackService)
     {
@@ -43,7 +45,7 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
             .Subscribe()
             .DisposeWith(_cleanup);
 
-        _ = this.ValidationRule(
+        EmailValidation = this.ValidationRule(
             viewModel => viewModel.Email,
             email => _emailRegex.IsMatch(email),
             "Email is not in valid.");
@@ -58,6 +60,9 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
         CancelBuggyExecutionCommand = ReactiveCommand.Create(() => { }, BuggyCommand.IsExecuting);
 
         SubmitCommand = ReactiveCommand.Create(() => { Console.WriteLine($"{Email} was submitted."); }, this.IsValid());
+
+        _canSubmit = SubmitCommand.CanExecute
+            .ToProperty(this, x => x.CanSubmit); 
     }
 
     private static async Task WaitAndThrowException(CancellationToken cancellationToken)
