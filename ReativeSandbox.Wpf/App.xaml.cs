@@ -28,16 +28,20 @@ public partial class App : Application
         .Build();
     }
 
-    private void OnApplicationStartup(object sender, StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
-        _host.Start();
+        await _host.StartAsync();
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
         mainWindow.Show();
+
+        base.OnStartup(e);
     }
 
-    private void OnApplicationExit(object sender, ExitEventArgs e)
+    protected override async void OnExit(ExitEventArgs e)
     {
-        _host.StopAsync().Wait();
+        await _host.StopAsync();
         _host.Dispose();
+
+        base.OnExit(e);
     }
 }
