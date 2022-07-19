@@ -1,6 +1,5 @@
-using System;
-
 namespace ReactiveSandbox.Shared.Models;
+
 public readonly record struct TrackDto
 {
     public int Id { get; }

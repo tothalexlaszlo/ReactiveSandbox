@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using ReactiveSandbox.Shared.Models;
 using ReactiveSandbox.Shared.ViewModels;
 using ReactiveUI;
-using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 
