@@ -147,7 +147,7 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
                 _stateManagerCleanup.Dispose();
                 _cleanup.Dispose();
 
-                //LogDisposed(Id);
+                LogDisposed(Id);
             }
 
             _disposedValue = true;
