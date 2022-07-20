@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
 
-namespace ReactiveSandbox;
+namespace ReativeSandbox.Wpf;
 
 /// <summary>
 /// Segít elkerülni, hogyha nincs validálási hiba, akkor a 

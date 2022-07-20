@@ -1,12 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ReactiveSandbox.Models;
-using ReactiveSandbox.Services;
-using ReactiveSandbox.ViewModels;
-using System.Threading.Tasks;
+using ReactiveSandbox.Shared.Models;
+using ReactiveSandbox.Shared.Services;
+using ReactiveSandbox.Shared.ViewModels;
 using System.Windows;
 
-namespace ReactiveSandbox;
+namespace ReativeSandbox.Wpf;
 
 /// <summary>
 /// Interaction logic for App.xaml

@@ -1,6 +1,4 @@
-using System;
-
-namespace ReactiveSandbox.Models;
+namespace ReactiveSandbox.Shared.Models;
 
 public class AppOption
 {

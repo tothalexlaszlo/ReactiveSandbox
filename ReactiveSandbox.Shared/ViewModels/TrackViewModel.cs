@@ -1,13 +1,12 @@
-using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ReactiveSandbox.Models;
+using ReactiveSandbox.Shared.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace ReactiveSandbox.ViewModels;
+namespace ReactiveSandbox.Shared.ViewModels;
 
 public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>, IDisposable
 {
@@ -148,7 +147,7 @@ public partial class TrackViewModel : ReactiveObject, IEquatable<TrackViewModel>
                 _stateManagerCleanup.Dispose();
                 _cleanup.Dispose();
 
-                //LogDisposed(Id);
+                LogDisposed(Id);
             }
 
             _disposedValue = true;
