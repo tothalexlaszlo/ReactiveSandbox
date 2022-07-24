@@ -17,7 +17,7 @@ public partial class App : Application
 
     public App()
     {
-        Splat.ModeDetector.OverrideModeDetector(Mode.Test);
+        Splat.ModeDetector.OverrideModeDetector(Mode.Run);
 
         _host = Host.CreateDefaultBuilder()
         .ConfigureServices((hostBuilderContext, services) =>
