@@ -1,7 +1,11 @@
+using DynamicData;
 using MudBlazor.Services;
+using ReactiveSandbox.Shared;
 using ReactiveSandbox.Shared.Models;
 using ReactiveSandbox.Shared.Services;
 using ReactiveSandbox.Shared.ViewModels;
+
+Splat.ModeDetector.OverrideModeDetector(Mode.Run);
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ReactiveSandbox.Shared;
 using ReactiveSandbox.Shared.Models;
 using ReactiveSandbox.Shared.Services;
 using ReactiveSandbox.Shared.ViewModels;
-using ReactiveSandbox.Wpf;
 using System.Windows;
 
 namespace ReativeSandbox.Wpf;

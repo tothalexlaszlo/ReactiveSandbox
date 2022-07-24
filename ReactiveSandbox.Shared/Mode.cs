@@ -1,6 +1,6 @@
 using Splat;
 
-namespace ReactiveSandbox.Wpf;
+namespace ReactiveSandbox.Shared;
 
 public sealed class Mode : IModeDetector
 {
