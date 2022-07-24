@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using ReactiveSandbox.Shared.Models;
 using ReactiveSandbox.Shared.Services;
 using ReactiveSandbox.Shared.ViewModels;
+using ReactiveSandbox.Wpf;
 using System.Windows;
 
 namespace ReativeSandbox.Wpf;
@@ -16,6 +17,8 @@ public partial class App : Application
 
     public App()
     {
+        Splat.ModeDetector.OverrideModeDetector(Mode.Test);
+
         _host = Host.CreateDefaultBuilder()
         .ConfigureServices((hostBuilderContext, services) =>
         {
