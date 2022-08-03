@@ -19,6 +19,7 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
     private readonly ReadOnlyObservableCollection<TrackViewModel> _tracks;
     private readonly Regex _emailRegex = new("^((\"[\\w-\\s]+\")|([\\w-]+(?:\\.[\\w-]+)*)|(\"[\\w-\\s]+\")([\\w-]+(?:\\.[\\w-]+)*))(@((?:[\\w-]+\\.)*\\w[\\w-]{0,66})\\.([a-z]{2,6}(?:\\.[a-z]{2})?)$)|(@\\[?((25[0-5]\\.|2[0-4][0-9]\\.|1[0-9]{2}\\.|[0-9]{1,2}\\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\\]?$)", RegexOptions.Compiled);
     private readonly ObservableAsPropertyHelper<bool> _canSubmit;
+    private readonly Interaction<Unit, bool> _confirmClean;
 
     private bool _disposedValue;
 
@@ -26,6 +27,7 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
     public string Email { get; set; } = string.Empty;
 
     public bool CanSubmit => _canSubmit.Value;
+    public Interaction<Unit, bool> ConfirmClean => _confirmClean;
     public ReadOnlyObservableCollection<TrackViewModel> InboundTracks => _tracks;
     public ValidationHelper EmailValidation { get; }
     public ReactiveCommand<Unit, int> CleanCommand { get; }
@@ -49,7 +51,17 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
             email => _emailRegex.IsMatch(email),
             "Email is not in valid.");
 
-        CleanCommand = ReactiveCommand.Create(() => trackService.ClearTracks());
+        _confirmClean = new Interaction<Unit, bool>();
+
+        CleanCommand = ReactiveCommand.CreateFromObservable(
+            () =>
+                _confirmClean
+                    .Handle(Unit.Default)
+                    .Where(result => result)
+                    .Select(_ => trackService.ClearTracks())
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                );
+
         _ = CleanCommand.Subscribe(count => Console.WriteLine($"Clean command: {count} items has been removed.")).DisposeWith(_cleanup);
 
         BuggyCommand = ReactiveCommand.CreateFromObservable(() => Observable.StartAsync(cancellationToken => WaitAndThrowException(cancellationToken))
