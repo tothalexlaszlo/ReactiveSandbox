@@ -8,6 +8,9 @@
 <MudGrid>
     <MudItem xs="12" sm="7">
         <MudPaper Class="pa-4 mud-height-full">
+            <MudButton Variant=Variant.Filled Color=Color.Primary OnClick="@(async () => await ClearAsync())">Clear</MudButton>
+            <br />
+            <br />
             @foreach (var track in ViewModel!.InboundTracks)
             {
                 <MudText Typo="Typo.body1" GutterBottom="true">@track</MudText>
