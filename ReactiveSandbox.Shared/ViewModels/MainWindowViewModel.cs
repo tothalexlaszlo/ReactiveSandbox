@@ -57,6 +57,7 @@ public class MainWindowViewModel : ReactiveValidationObject, IDisposable
             () =>
                 _confirmClean
                     .Handle(Unit.Default)
+                    .Where(reseult => reseult)
                     .Select(_ => trackService.ClearTracks())
                     .ObserveOn(RxApp.MainThreadScheduler)
                 );
